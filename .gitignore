@@ -1,0 +1,13 @@
+packages/
+x64/
+.vs/
+.bin/
+.obj/
+
+debug/
+
+dnn_model_2_0_lite_op11.onnx
+dnn_model_2_0_op11.onnx
+
+*.obj
+
