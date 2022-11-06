@@ -12,7 +12,7 @@ using namespace std;
 #include "Face.h"
 
 
-const int scale = 1000;
+const int scale = 150;
 
 class ObjParser {
 public:
@@ -31,6 +31,8 @@ public:
 			for (unsigned int i = 0; i < normalIndices.size(); i++) {
 				pushFaces(normalIndices[i], normal, this->realNormal);
 			}
+
+			moveZeroPoint();
 		}
 		catch(string err) {
 			return;
@@ -147,5 +149,47 @@ private:
 		}
 
 		resultVector.push_back(tempFace);
+	}
+
+	void moveZeroPoint() {
+		Vertex zero = getMiddle();
+		Vertex temp;
+
+		for (int i = 0; i < realVertex.size(); i++) {
+			for (int j = 0; j < realVertex[i].getNumberOfVertex(); j++) {
+				temp = Vertex();
+				temp.X = realVertex[i].getVertex(j).X - zero.X;
+				temp.Y = realVertex[i].getVertex(j).Y - zero.Y;
+				temp.Z = realVertex[i].getVertex(j).Z - zero.Z;
+
+				realVertex[i].setVertex(j, temp);
+			}
+		}
+	}
+
+	Vertex getMiddle() {
+
+		Vertex result = Vertex();
+		Vertex temp;
+
+		int count = 0;
+
+		result.X = 0; result.Y = 0; result.Z = 0;
+		for (int i = 0; i < realVertex.size(); i++) {
+			for (int j = 0; j < realVertex[i].getNumberOfVertex(); j++) {
+				temp = realVertex[i].getVertex(j);
+				result.X = result.X + temp.X;
+				result.Y = result.Y + temp.Y;
+				result.Z = result.Z + temp.Z;
+				count++;
+			}
+		}
+
+		result.X /= (float)count;
+		result.Y /= (float)count;
+		result.Z /= (float)count;
+
+		return result;
+
 	}
 };

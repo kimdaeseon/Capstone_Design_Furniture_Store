@@ -532,7 +532,7 @@ void display()
 	glScalef(1, 1, 1);
 	GLfloat m[4][4], m1[4][4];
 	build_rotmatrix(m, quat);
-	gluLookAt(0, 2.0, 2.0, 0, 0, 0, 0, 1.0, 0);
+	gluLookAt(-1, -1, -1, 0, 0, 0, 0, -1, 0);
 
 	GLfloat r, g, b;
 	glMultMatrixf(&m[0][0]);
@@ -647,7 +647,7 @@ int main(int argc, char* argv[])
 	char* msg[maxSize];
 	string a;
 	
-	string targetName = "chair";
+	string targetName = "table";
 
 	ifstream objFile(targetName + ".obj");
 	ifstream mtlFile(targetName + ".mtl");

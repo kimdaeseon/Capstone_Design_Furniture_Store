@@ -8,6 +8,10 @@ public:
 		return this->vector[index];
 	}
 	
+	void setVertex(int index, Vertex vertex) {
+		this->vector[index] = vertex;
+	}
+
 	int getNumberOfVertex() {
 		return this->numberOfVertex;
 	}
