@@ -543,17 +543,29 @@ void display()
 
 	
 	glEnable(GL_LIGHT0);
-	GLfloat diffuse0[4] = { mtlParser.diffuse.X, mtlParser.diffuse.Y, mtlParser.diffuse.Z, 1.0 };
-	GLfloat ambient0[4] = { mtlParser.ambient.X, mtlParser.ambient.Y, mtlParser.ambient.Z, 1.0 };
-	GLfloat specular0[4] = { mtlParser.specular.X, mtlParser.specular.Y, mtlParser.specular.Z, 1.0 };
-	GLfloat light0_pos[4] = { -2.0, 2.0, 2.0, 1.0 };
-
+	glEnable(GL_LIGHT1);
+	glEnable(GL_LIGHT2);
+	GLfloat diffuse[4] = { mtlParser.diffuse.X, mtlParser.diffuse.Y, mtlParser.diffuse.Z, 1.0 };
+	GLfloat ambient[4] = { mtlParser.ambient.X, mtlParser.ambient.Y, mtlParser.ambient.Z, 1.0 };
+	GLfloat specular[4] = { mtlParser.specular.X, mtlParser.specular.Y, mtlParser.specular.Z, 1.0 };
+	GLfloat light0_pos[4] = { -2, -2, -2, 1 };
+	GLfloat light1_pos[4] = { -2.0, -4.0, -2.0, 1 };
+	GLfloat light2_pos[4] = { 1.0, 1.0, 1.0, 1 };
 	
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient0);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse0);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
 
+	glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, specular);
+	glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
+
+	glLightfv(GL_LIGHT2, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT2, GL_SPECULAR, specular);
+	glLightfv(GL_LIGHT2, GL_POSITION, light2_pos);
 
 
 	// test #2
@@ -568,7 +580,7 @@ void display()
 	
 	// test #4
 	//빨간색 플라스틱과 유사한 재질을 다음과 같이 정의
-
+	/*
 	float number = 0.5;
 
 	GLfloat mat_ambient[4] = { number, number, number };
@@ -581,6 +593,7 @@ void display()
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
+	*/
 	/*
 	// 텍스처 로드 및 생성
 	int width, height, nrChannels;
@@ -647,7 +660,7 @@ int main(int argc, char* argv[])
 	char* msg[maxSize];
 	string a;
 	
-	string targetName = "table";
+	string targetName = "chair";
 
 	ifstream objFile(targetName + ".obj");
 	ifstream mtlFile(targetName + ".mtl");
