@@ -437,7 +437,7 @@ void display()
 	glMultMatrixf(&m[0][0]);
 
 	applyLight();
-	applyTexture("steal1.jpg");
+	applyTexture("steel1.jpg");
 	
 	vector<Face> realVertex = objParser.realVertex;
 	vector<Face> realNormal = objParser.realNormal;
@@ -484,13 +484,7 @@ void parse(string fileName, Parser& parser) {
 }
 
 int main(int argc, char* argv[])
-{
-	
-	vector<string> lines;
-	const int maxSize = 512;
-	char* msg[maxSize];
-	string a;
-	
+{	
 	string targetName = "chair";
 	objParser.scale = 150;
 
