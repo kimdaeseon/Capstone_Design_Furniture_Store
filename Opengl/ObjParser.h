@@ -10,13 +10,15 @@ using namespace std;
 
 #include "Vertex.h"
 #include "Face.h"
+#include "Parser.h"
 
 
-const int scale = 150;
 
-class ObjParser {
+class ObjParser : public Parser {
 public:
-	void parse(const char* line) {
+	int scale = 150;
+
+	void parse(const char* line) final {
 		prasingWithTexture(line);
 	}
 
@@ -65,13 +67,6 @@ private:
 			tempVertex.Z = z / scale;
 			vertex.push_back(tempVertex);
 		}
-		else if (strcmp(lineHeader, "b") == 0) {
-			Vertex tempVertex;
-			tempVertex.X = x / scale;
-			tempVertex.Y = -y / scale;
-			tempVertex.Z = z / scale;
-			skeleton.push_back(tempVertex);
-		}
 		else if (strcmp(lineHeader, "vt") == 0) {
 			Vertex tempVertex;
 			tempVertex.X = x;
@@ -80,9 +75,9 @@ private:
 		}
 		else if (strcmp(lineHeader, "vn") == 0) {
 			Vertex tempVertex;
-			tempVertex.X = x / 255;
-			tempVertex.Y = y / 255;
-			tempVertex.Z = z / 255;
+			tempVertex.X = x;
+			tempVertex.Y = y;
+			tempVertex.Z = z;
 			normal.push_back(tempVertex);
 		}
 		else if (strcmp(lineHeader, "f") == 0) {

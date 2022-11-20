@@ -2,6 +2,7 @@
 #include "ObjParser.h"
 #include "stb_image.h"
 #include "MtlParser.h"
+#include "Parser.h"
 
 #include <iostream>
 #include <vector>
@@ -52,10 +53,6 @@ void idle() {
 	deltaT = currentClock - previousClock;
 	if (deltaT < 1000.0 / 20.0) { return; }
 	else { previousClock = currentClock; }
-
-	//char buff[256];
-	//sprintf_s(buff, "Frame Rate = %f", 1000.0 / deltaT);
-	//frameRate = buff;
 
 	glutPostRedisplay();
 }
@@ -362,242 +359,48 @@ void InitializeWindow(int argc, char* argv[])
 	glutMotionFunc(motion);
 	glutMouseFunc(mouse);
 	glutCloseFunc(close);
-	//GLuint image = load   ("./my_texture.bmp");
-
-	//glBindTexture(1,)
 
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 
-	// bind textures
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 
 	reshape(1000, 1000);
-
-	/*glGenTextures(1, &dispBindIndex);
-	glBindTexture(GL_TEXTURE_2D, dispBindIndex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
 }
 
-
-float squareDistance(Vertex vertex1, Vertex vertex2) {
-	float differX = vertex1.X - vertex2.X;
-	float differY = vertex1.Y - vertex2.Y;
-	float differZ = vertex1.Z - vertex2.Z;
-	return differX * differX + differY * differY + differZ * differZ;
-}
-
-bool calculateLine(Vertex vertex1, vector<Vertex> skeleton) {
-	Vertex Left_clavicle = skeleton[9];
-	Vertex Right_clavicle = skeleton[10];
-	Vertex Neck = skeleton[6];
-	float inclination;
-	float y;
-
-	if (vertex1.X < Neck.X) { //vertex1이 목보다 왼쪽이면 
-		inclination = (float)(Neck.Y - Left_clavicle.Y) / (Neck.X - Left_clavicle.X); //목과 빗장뼈를 잇는 직선의 기울기 l1
-		y = inclination * (vertex1.X - Neck.X) + Neck.Y; //l1 기울기로 Neck을 지나는 직선에 vertex1의 x값을 대입했을 때의 y값
-	}
-	else { //vertex1이 목보다 오른쪽이면
-		inclination = (float)(Neck.Y - Right_clavicle.Y) / (Neck.X - Right_clavicle.X); //목과 빗장뼈를 잇는 직선의 기울기 l2
-		y = inclination * (vertex1.X - Neck.X) + Neck.Y; //l2 기울기로 Neck을 지나는 직선에 vertex1의 x값을 대입했을 때의 y값
-	}
-
-	if (vertex1.Y < y) {
-		return true;
-	}
-	return false;
-}
-
-bool isTop(Vertex vertex, vector<Vertex> skeleton) {
-	Vertex leftWrist = skeleton[7];
-	Vertex rightWrist = skeleton[8];
-	Vertex neck = skeleton[6];
-	Vertex waist = skeleton[5];
-
-	float distanceOfWrist = squareDistance(leftWrist, rightWrist);
-	float distanceOfWaistAndNeck = squareDistance(neck, waist);
-
-	float distanceOfLeftWristAndVertex = squareDistance(leftWrist, vertex);
-	float distanceOfRightWristAndVertex = squareDistance(rightWrist, vertex);
-
-	float distanceOfNeckAndVertex = squareDistance(neck, vertex);
-	float distanceOfWaistAndVertex = squareDistance(waist, vertex);
-
-	if (!calculateLine(vertex, skeleton)) { //두 직선보다 위의 점은 모두 false 처리
-		return false;
-	}
-	if (vertex.Y >= neck.Y) {	//목보다 위의 점은 true 처리
-		return true;
-	}
-	/*
-	//남은 점 중에서
-	if (distanceOfLeftWristAndVertex > distanceOfRightWristAndVertex) { //오른쪽 손목이랑 가까우면
-		if (distanceOfRightWristAndVertex + distanceOfWrist < distanceOfLeftWristAndVertex) return false; //오른손목거리 + 손목사이 거리 <왼쪽손목거리
-	}
-	else { //왼쪽 손목이랑 가까우면
-		if (distanceOfLeftWristAndVertex + distanceOfWrist < distanceOfRightWristAndVertex) return false; //왼쪽손목거리 + 손목사이거리 < 오른쪽손목거리
-	}
-	*/
-
-	if (distanceOfNeckAndVertex > distanceOfWaistAndVertex) { //목과의 거리 > 허리와의 거리
-		if (distanceOfWaistAndVertex + distanceOfWaistAndNeck < distanceOfNeckAndVertex) return false; //허리와거리 +허리와 목거리 <목과의 거리
-	}
-	else {
-		if (distanceOfNeckAndVertex + distanceOfWaistAndNeck < distanceOfWaistAndVertex) return false; //목과의 거리 + 허리와 목거리 <허리와 거리
-	}
-
-	return true;
-}
-
-/*
-가운데 골반 점
-왼쪽 골반 점
-오른쪽 골반 점
-왼쪽 발목점
-오른쪽 발목점
-
-허리점
-목점
-왼쪽 손목
-오른쪽 손목
-*/
-
-bool isBottom(Vertex vertex, vector<Vertex> skeleton) {
-	Vertex middlePelvis = skeleton[0];
-	Vertex leftPelvis = skeleton[2];
-	Vertex rightPelvis = skeleton[1];
-
-	Vertex leftAnkle = skeleton[3];
-	Vertex rightAnkle = skeleton[4];
-
-	float weight = 0.6;
-
-	float rangeOfPelvis = abs(leftPelvis.X - rightPelvis.X);
-
-	float leftLimit = leftPelvis.X - rangeOfPelvis * weight;
-	float rightLimit = rightPelvis.X + rangeOfPelvis * weight;
-
-	float topLimit = (leftPelvis.Y > rightPelvis.Y) ? leftPelvis.Y : rightPelvis.Y;
-	float bottomLimit = (leftAnkle.Y < rightAnkle.Y) ? leftAnkle.Y : rightAnkle.Y;
-
-	if (vertex.X >= leftLimit && vertex.X <= rightLimit) {
-		if (vertex.Y >= bottomLimit && vertex.Y <= topLimit) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-Vertex crossDot(Vertex v1, Vertex v2) {
-	float v11 = v1.X;
-	float v12 = v1.Y;
-	float v13 = v1.Z;
-
-	float v21 = v2.X;
-	float v22 = v2.Y;
-	float v23 = v2.Z;
-
-	Vertex result;
-	result.X = v12 * v23 - v13 * v22;
-	result.Y = v13 * v21 - v11 * v23;
-	result.Z = v11 * v22 - v12 * v21;
-
-	return result;
-}
-
-Vertex calculateNormal(Vertex v1, Vertex v2, Vertex v3) {
-	Vertex va, vb;
-
-	va.X = v2.X - v1.X;
-	va.Y = v2.Y - v1.Y;
-	va.Z = v2.Z - v1.Z;
-
-	vb.X = v3.X - v1.X;
-	vb.Y = v3.Y - v1.Y;
-	vb.Z = v3.Z - v1.Z;
-
-	return crossDot(va, vb);
-}
-
-void display()
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(60, 1, 0.1, 200);
-	glTranslatef(t[0], t[1], t[2] - 1.0f);
-	glScalef(1, 1, 1);
-	GLfloat m[4][4], m1[4][4];
-	build_rotmatrix(m, quat);
-	gluLookAt(-1, -1, -1, 0, 0, 0, 0, -1, 0);
-
-	GLfloat r, g, b;
-	glMultMatrixf(&m[0][0]);
-
-	
-	// test #1
+void applyLight() {
 	glEnable(GL_LIGHTING);
-
-	
 	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
-	glEnable(GL_LIGHT2);
+
+	GLfloat AmbientColor[] = { 0.2f, 0.2f, 0.2f, 0.0f };         //주변광
+	GLfloat DiffuseColor[] = { 0.5f, 0.5f, 0.5f, 0.0f };          //분산광
+	GLfloat SpecularColor[] = { 0.5f, 0.5f, 0.5f, 0.0f };        //방사광
+
 	GLfloat diffuse[4] = { mtlParser.diffuse.X, mtlParser.diffuse.Y, mtlParser.diffuse.Z, 1.0 };
 	GLfloat ambient[4] = { mtlParser.ambient.X, mtlParser.ambient.Y, mtlParser.ambient.Z, 1.0 };
 	GLfloat specular[4] = { mtlParser.specular.X, mtlParser.specular.Y, mtlParser.specular.Z, 1.0 };
-	GLfloat light0_pos[4] = { -2, -2, -2, 1 };
-	GLfloat light1_pos[4] = { -2.0, -4.0, -2.0, 1 };
-	GLfloat light2_pos[4] = { 1.0, 1.0, 1.0, 1 };
-	
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+	GLfloat light0_pos[4] = { -0.5, -0.5, -0.5, 1 };
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, AmbientColor);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, DiffuseColor);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, SpecularColor);
 	glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
 
-	glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, specular);
-	glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, mtlParser.shines);
 
-	glLightfv(GL_LIGHT2, GL_AMBIENT, ambient);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT2, GL_SPECULAR, specular);
-	glLightfv(GL_LIGHT2, GL_POSITION, light2_pos);
-
-
-	// test #2
-	/*
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.2);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.05);
-	// test #3
-	*/
+
 	glShadeModel(GL_SMOOTH);
-	//glShadeModel(GL_FLAT);
-	
-	// test #4
-	//빨간색 플라스틱과 유사한 재질을 다음과 같이 정의
-	/*
-	float number = 0.5;
+}
 
-	GLfloat mat_ambient[4] = { number, number, number };
-	GLfloat mat_diffuse[4] = { number, number, number };
-	GLfloat mat_specular[4] = { number, number, number };
-	GLfloat mat_shininess = 256.0;
-
-	//// 폴리곤의 앞면의 재질을 설정 
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
-	*/
-	/*
-	// 텍스처 로드 및 생성
+void applyTexture(const char* fileName) {
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load(topImage.c_str(), &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(fileName, &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -616,12 +419,30 @@ void display()
 
 
 	glEnable(GL_TEXTURE_2D);
-	*/
+}
+
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60, 1, 0.1, 200);
+	glTranslatef(t[0], t[1], t[2] - 1.0f);
+	glScalef(1, 1, 1);
+	GLfloat m[4][4], m1[4][4];
+	build_rotmatrix(m, quat);
+	gluLookAt(-1, -1, -1, 0, 0, 0, 0, -1, 0);
+
+	GLfloat r, g, b;
+	glMultMatrixf(&m[0][0]);
+
+	applyLight();
+	applyTexture("steal1.jpg");
+	
 	vector<Face> realVertex = objParser.realVertex;
 	vector<Face> realNormal = objParser.realNormal;
 	vector<Face> realTexture = objParser.realTexture;
-	
-	// 상의
+
 	glEnable(GL_AUTO_NORMAL);
 	glEnable(GL_NORMALIZE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -652,6 +473,16 @@ void display()
 	glutSwapBuffers();
 }
 
+void parse(string fileName, Parser& parser) {
+	ifstream file(fileName);
+	string buffer;
+
+	while (file.peek() != EOF) {
+		getline(file, buffer);
+		parser.parse(buffer.c_str());
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	
@@ -661,21 +492,10 @@ int main(int argc, char* argv[])
 	string a;
 	
 	string targetName = "chair";
+	objParser.scale = 150;
 
-	ifstream objFile(targetName + ".obj");
-	ifstream mtlFile(targetName + ".mtl");
-
-	string buffer;
-
-	while (objFile.peek() != EOF) {
-		getline(objFile, buffer);
-		objParser.parse(buffer.c_str());
-	}
-
-	while (mtlFile.peek() != EOF) {
-		getline(mtlFile, buffer);
-		mtlParser.parse(buffer.c_str());
-	}
+	parse(targetName + ".obj", objParser);
+	parse(targetName + ".mtl", mtlParser);
 
 	objParser.calculateFace();
 

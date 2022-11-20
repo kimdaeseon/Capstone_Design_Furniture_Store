@@ -1,15 +1,18 @@
 #include <sstream>
 #include <iostream>
+using namespace std;
+
 #include "Vertex.h"
+#include "Parser.h"
 
-
-class MtlParser {
+class MtlParser : public Parser {
 public:
 	Vertex ambient;
 	Vertex diffuse;
 	Vertex specular;
+	int shines;
 	
-	void parse(const char* line) {
+	void parse(const char* line) final {
 		float x, y, z;
 		char lineHeader[128];
 		sscanf(line, "\t %s %f %f %f", lineHeader, &x, &y, &z);
@@ -30,6 +33,10 @@ public:
 			specular.X = x;
 			specular.Y = y;
 			specular.Z = z;
+		}
+		else if (strcmp(lineHeader, "Ns") == 0) {
+			cout << "Ns" << x << endl;
+			shines = x;
 		}
 	}
 };

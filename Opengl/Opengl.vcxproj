@@ -149,6 +149,7 @@
     <ClInclude Include="Face.h" />
     <ClInclude Include="MtlParser.h" />
     <ClInclude Include="ObjParser.h" />
+    <ClInclude Include="Parser.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Vertex.h" />
