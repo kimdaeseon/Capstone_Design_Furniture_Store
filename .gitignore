@@ -2,10 +2,10 @@ packages/
 x64/
 .vs/
 .bin/
-Opengl/.obj/
-Opengl/*.mtl/
-Opengl/*.jpg/
-Opengl/*.png/
+*.obj/
+*.mtl/
+*.jpg/
+*.png/
 debug/
 
 dnn_model_2_0_lite_op11.onnx
