@@ -372,24 +372,20 @@ void applyLight() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
-	GLfloat AmbientColor[] = { 0.2f, 0.2f, 0.2f, 0.0f };         //주변광
-	GLfloat DiffuseColor[] = { 0.5f, 0.5f, 0.5f, 0.0f };          //분산광
-	GLfloat SpecularColor[] = { 0.5f, 0.5f, 0.5f, 0.0f };        //방사광
-
 	GLfloat diffuse[4] = { mtlParser.diffuse.X, mtlParser.diffuse.Y, mtlParser.diffuse.Z, 1.0 };
 	GLfloat ambient[4] = { mtlParser.ambient.X, mtlParser.ambient.Y, mtlParser.ambient.Z, 1.0 };
 	GLfloat specular[4] = { mtlParser.specular.X, mtlParser.specular.Y, mtlParser.specular.Z, 1.0 };
-	GLfloat light0_pos[4] = { -0.5, -0.5, -0.5, 1 };
+	GLfloat light0_pos[4] = { -0.5, 1.0, -0.5, 1 };
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, AmbientColor);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, DiffuseColor);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, SpecularColor);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
 
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-	glMaterialf(GL_FRONT, GL_SHININESS, mtlParser.shines);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.2);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.1);
@@ -437,7 +433,7 @@ void display()
 	glMultMatrixf(&m[0][0]);
 
 	applyLight();
-	applyTexture("steel1.jpg");
+	applyTexture("wood3.jpg");
 	
 	vector<Face> realVertex = objParser.realVertex;
 	vector<Face> realNormal = objParser.realNormal;
@@ -485,8 +481,8 @@ void parse(string fileName, Parser& parser) {
 
 int main(int argc, char* argv[])
 {	
-	string targetName = "chair";
-	objParser.scale = 150;
+	string targetName = "round";
+	objParser.scale = 1;
 
 	parse(targetName + ".obj", objParser);
 	parse(targetName + ".mtl", mtlParser);
